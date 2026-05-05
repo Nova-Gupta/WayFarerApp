@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/iv_tour_thumb"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/bg_tour_placeholder"
+            android:layout_marginEnd="12dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_tour_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tour Name"
+                android:textColor="@color/dark_navy"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"/>
+
+            <TextView
+                android:id="@+id/tv_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Paid: $1,299"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Booked: 2024-01-01"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirmed ✓"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:background="@drawable/bg_confirmed_badge"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

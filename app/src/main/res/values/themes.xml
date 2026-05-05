@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.WayFarer" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/dark_navy</item>
+        <item name="colorPrimaryVariant">@color/dark_navy</item>
+        <item name="colorOnPrimary">@color/gold</item>
+        <item name="colorSecondary">@color/gold</item>
+        <item name="colorOnSecondary">@color/dark_navy</item>
+        <item name="android:statusBarColor">@color/dark_navy</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="materialButtonStyle">@style/WayFarer.Button</item>
+    </style>
+
+    <style name="Theme.WayFarer.Splash" parent="Theme.WayFarer">
+        <item name="android:windowFullscreen">false</item>
+    </style>
+
+    <style name="WayFarer.Button" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">12dp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorHint">@color/text_muted</item>
+        <item name="editTextColor">@color/white</item>
+    </style>
+
+    <color name="bottom_nav_selected">@color/dark_navy</color>
+    <color name="bottom_nav_unselected">@color/text_muted</color>
+</resources>

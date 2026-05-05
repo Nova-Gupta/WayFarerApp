@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/iv_tour_cover"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/bg_tour_placeholder"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_tour_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tour Name"
+                android:textColor="@color/dark_navy"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"/>
+
+            <TextView
+                android:id="@+id/tv_tour_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Summary"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="4dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_tour_duration"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="7 days"
+                    android:textColor="@color/text_muted"
+                    android:textSize="13sp"
+                    android:drawablePadding="4dp"/>
+
+                <TextView
+                    android:id="@+id/tv_tour_difficulty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Easy"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:background="@drawable/bg_difficulty_badge"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/tv_tour_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="★ 4.9"
+                    android:textColor="@color/gold_dark"
+                    android:textSize="13sp"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_marginVertical="12dp"/>
+
+            <TextView
+                android:id="@+id/tv_tour_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$1,299 / person"
+                android:textColor="@color/gold_dark"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Way.Farer</string>
+    <string name="tour_price_format">$%1$d / person</string>
+    <string name="tour_duration_format">%1$d days</string>
+    <string name="tour_rating_format">★ %1$.1f</string>
+</resources>

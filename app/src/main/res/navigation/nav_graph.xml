@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.wayfarer.app.ui.home.HomeFragment"
+        android:label="Home">
+        <action
+            android:id="@+id/action_home_to_detail"
+            app:destination="@id/tourDetailFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/tourDetailFragment"
+        android:name="com.wayfarer.app.ui.detail.TourDetailFragment"
+        android:label="Tour Detail">
+        <argument android:name="tourId" app:argType="string" android:defaultValue=""/>
+        <argument android:name="tourName" app:argType="string" android:defaultValue=""/>
+        <argument android:name="tourSummary" app:argType="string" android:defaultValue=""/>
+        <argument android:name="tourPrice" app:argType="float" android:defaultValue="0"/>
+        <argument android:name="tourCover" app:argType="string" android:defaultValue=""/>
+        <argument android:name="tourDifficulty" app:argType="string" android:defaultValue=""/>
+        <argument android:name="tourDuration" app:argType="integer" android:defaultValue="0"/>
+        <argument android:name="tourRating" app:argType="float" android:defaultValue="0"/>
+        <argument android:name="tourRatingCount" app:argType="integer" android:defaultValue="0"/>
+        <argument android:name="tourRoute" app:argType="string[]" app:nullable="true" android:defaultValue="@null"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookingsFragment"
+        android:name="com.wayfarer.app.ui.bookings.BookingsFragment"
+        android:label="Bookings"/>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.wayfarer.app.ui.profile.ProfileFragment"
+        android:label="Profile"/>
+
+</navigation>

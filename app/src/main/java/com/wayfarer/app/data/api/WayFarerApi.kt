@@ -32,4 +32,14 @@ interface WayFarerApi {
 
     @POST("api/bookings")
     suspend fun createBooking(@Body request: BookingRequest): Response<BookingsResponse>
+
+    // ── Hotels ──────────────────────────────────────────────────────────
+
+    @GET("api/hotels")
+    suspend fun getHotels(): Response<List<Hotel>>
+
+    // ── Locations ────────────────────────────────────────────────────────
+
+    @POST("api/locations")
+    suspend fun addLocation(@Body location: Location): Response<Void>
 }

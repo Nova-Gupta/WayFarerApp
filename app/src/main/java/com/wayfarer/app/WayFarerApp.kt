@@ -12,5 +12,11 @@ class WayFarerApp : Application() {
         super.onCreate()
         sessionManager = SessionManager(this)
         RetrofitClient.init(sessionManager)
+
+        if (sessionManager.isDarkMode()) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO)
+        }
     }
 }

@@ -39,4 +39,14 @@
         android:name="com.wayfarer.app.ui.profile.ProfileFragment"
         android:label="Profile"/>
 
+    <fragment
+        android:id="@+id/hotelsFragment"
+        android:name="com.wayfarer.app.ui.hotels.HotelFragment"
+        android:label="Hotels" />
+
+    <fragment
+        android:id="@+id/addLocationFragment"
+        android:name="com.wayfarer.app.ui.location.AddLocationFragment"
+        android:label="Add Location" />
+
 </navigation>

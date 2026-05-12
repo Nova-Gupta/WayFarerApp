@@ -66,7 +66,10 @@ data class Tour(
 data class Location(
     val description: String,
     val type: String = "Point",
-    val coordinates: List<Double>
+    val coordinates: List<Double>,
+    val category: String = "Other",
+    val recommendedBy: String? = null,
+    val whyVisit: String? = null
 )
 
 // ── Bookings ──────────────────────────────────────────────────────────────
@@ -93,6 +96,18 @@ data class Booking(
     val price: Double,
     val createdAt: String,
     val paid: Boolean = true
+)
+
+// ── Hotels ────────────────────────────────────────────────────────────────
+
+data class Hotel(
+    val id: String,
+    val name: String,
+    val location: String,
+    val rating: Float,
+    val pricePerNight: Double,
+    val image: String,
+    val description: String
 )
 
 // ── Generic ───────────────────────────────────────────────────────────────

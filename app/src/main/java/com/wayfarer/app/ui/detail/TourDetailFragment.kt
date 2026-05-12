@@ -18,6 +18,7 @@ import com.wayfarer.app.WayFarerApp
 import com.wayfarer.app.data.api.RetrofitClient
 import com.wayfarer.app.databinding.FragmentTourDetailBinding
 import com.wayfarer.app.ui.auth.AuthActivity
+import com.wayfarer.app.utils.NotificationHelper
 import com.wayfarer.app.utils.Resource
 
 class TourDetailFragment : Fragment() {
@@ -103,6 +104,19 @@ class TourDetailFragment : Fragment() {
                     Toast.makeText(requireContext(), "🎉 Booking confirmed!", Toast.LENGTH_LONG).show()
                     binding.btnBook.text = "Confirmed ✓"
                     binding.btnBook.isEnabled = false
+
+                    // Schedule notification
+                    val notificationHelper = NotificationHelper(requireContext())
+                    notificationHelper.showBookingNotification(
+                        "Booking Confirmed!",
+                        "Your tour '${binding.tvTourName.text}' has been booked successfully."
+                    )
+                    // Schedule a reminder for 30 seconds later for demonstration
+                    notificationHelper.scheduleReminder(
+                        "Tour Reminder",
+                        "Get ready! Your tour '${binding.tvTourName.text}' is starting soon.",
+                        30
+                    )
                 }
                 is Resource.Error -> {
                     binding.progressBar.visibility = View.GONE
@@ -129,7 +143,7 @@ class TourDetailFragment : Fragment() {
                 text = city
                 setBackgroundResource(R.drawable.bg_info_chip)
                 setPadding(32, 16, 32, 16)
-                setTextColor(Color.parseColor("#1A1A2E"))
+                setTextColor(requireContext().getColor(R.color.text_primary))
                 textSize = 13f
             }
             binding.layoutRoute.addView(cityView)

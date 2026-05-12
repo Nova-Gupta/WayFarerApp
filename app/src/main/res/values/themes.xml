@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.WayFarer" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.WayFarer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/dark_navy</item>
         <item name="colorPrimaryVariant">@color/dark_navy</item>
         <item name="colorOnPrimary">@color/gold</item>

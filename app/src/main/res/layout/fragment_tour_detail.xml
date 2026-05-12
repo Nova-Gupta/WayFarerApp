@@ -69,7 +69,7 @@
                         android:layout_weight="1"
                         android:fontFamily="sans-serif-medium"
                         android:text="Discover Japan Tour"
-                        android:textColor="@color/dark_navy"
+                        android:textColor="@color/text_primary"
                         android:textSize="26sp" />
 
                     <LinearLayout
@@ -135,7 +135,7 @@
                     android:layout_marginBottom="12dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Tour Overview"
-                    android:textColor="@color/dark_navy"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp" />
 
                 <TextView
@@ -176,7 +176,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="4-Star Hotels"
-                            android:textColor="@color/dark_navy"
+                            android:textColor="@color/text_primary"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -200,7 +200,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="Bullet Train"
-                            android:textColor="@color/dark_navy"
+                            android:textColor="@color/text_primary"
                             android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.flexbox.FlexboxLayout>
@@ -213,7 +213,7 @@
                     android:layout_marginBottom="12dp"
                     android:fontFamily="sans-serif-medium"
                     android:text="Route Highlights"
-                    android:textColor="@color/dark_navy"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp" />
 
                 <HorizontalScrollView
@@ -230,13 +230,15 @@
                 </HorizontalScrollView>
 
                 <!-- Customize & Book Section -->
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
-                    app:cardBackgroundColor="@color/white"
+                    app:cardBackgroundColor="@color/surface"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="4dp">
+                    app:cardElevation="2dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/divider">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -249,7 +251,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-medium"
                             android:text="Customize Package"
-                            android:textColor="@color/dark_navy"
+                            android:textColor="@color/text_primary"
                             android:textSize="18sp" />
 
                         <TextView
@@ -268,15 +270,16 @@
                             android:indeterminateTint="@color/dark_navy"
                             android:visibility="gone" />
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_book"
                             android:layout_width="match_parent"
                             android:layout_height="56dp"
-                            android:backgroundTint="@color/dark_navy"
+                            app:backgroundTint="@color/gold_dark"
                             android:text="Book Now"
-                            android:textColor="@color/gold"
-                            android:textSize="16sp"
-                            app:cornerRadius="12dp" />
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="28dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -287,7 +290,7 @@
                             android:textColor="@color/text_muted"
                             android:textSize="11sp" />
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
                 <View
                     android:layout_width="match_parent"

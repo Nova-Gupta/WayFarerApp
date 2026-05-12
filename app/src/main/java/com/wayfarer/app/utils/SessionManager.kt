@@ -24,6 +24,7 @@ class SessionManager(context: Context) {
     companion object {
         private const val KEY_TOKEN = "jwt_token"
         private const val KEY_USER = "user_json"
+        private const val KEY_DARK_MODE = "dark_mode"
     }
 
     fun saveToken(token: String) = prefs.edit { putString(KEY_TOKEN, token) }
@@ -40,4 +41,8 @@ class SessionManager(context: Context) {
     fun isLoggedIn(): Boolean = !getToken().isNullOrEmpty()
 
     fun clearSession() = prefs.edit { clear() }
+
+    fun saveDarkMode(isDark: Boolean) = prefs.edit { putBoolean(KEY_DARK_MODE, isDark) }
+
+    fun isDarkMode(): Boolean = prefs.getBoolean(KEY_DARK_MODE, false)
 }

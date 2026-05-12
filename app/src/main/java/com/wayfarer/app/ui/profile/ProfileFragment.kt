@@ -46,7 +46,8 @@ class ProfileFragment : Fragment() {
         binding.tvInitials.text = initials.uppercase()
 
         binding.btnBookings.setOnClickListener {
-            findNavController().navigate(R.id.bookingsFragment)
+            val bottomNav = requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+            bottomNav?.selectedItemId = R.id.bookingsFragment
         }
 
         binding.btnSettings.setOnClickListener {
@@ -54,6 +55,33 @@ class ProfileFragment : Fragment() {
             val uri = Uri.fromParts("package", requireContext().packageName, null)
             intent.data = uri
             startActivity(intent)
+        }
+
+        binding.switchDarkMode.isChecked = session.isDarkMode()
+        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+            session.saveDarkMode(isChecked)
+            if (isChecked) {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
+        
+        binding.btnEditProfile.setOnClickListener {
+            android.widget.Toast.makeText(requireContext(), "Edit Profile coming soon", android.widget.Toast.LENGTH_SHORT).show()
+        }
+        
+        binding.btnHelp.setOnClickListener {
+            android.widget.Toast.makeText(requireContext(), "Help & Support coming soon", android.widget.Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnNotifications.setOnClickListener {
+            binding.switchNotifications.isChecked = !binding.switchNotifications.isChecked
+        }
+        
+        binding.switchNotifications.setOnCheckedChangeListener { _, isChecked ->
+            val status = if (isChecked) "enabled" else "disabled"
+            android.widget.Toast.makeText(requireContext(), "Notifications $status", android.widget.Toast.LENGTH_SHORT).show()
         }
 
         if (isLoggedIn) {

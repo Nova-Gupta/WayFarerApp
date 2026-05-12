@@ -11,7 +11,8 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
 
     // Updated to the production Vercel backend:
-    const val BASE_URL = "https://traveltania.vercel.app/"
+    // Updated to test for url for now
+    const val BASE_URL = "https://travel-rw5q.onrender.com/"
 
     private lateinit var sessionManager: SessionManager
 

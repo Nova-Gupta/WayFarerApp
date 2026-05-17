@@ -68,11 +68,11 @@ class ProfileFragment : Fragment() {
         }
         
         binding.btnEditProfile.setOnClickListener {
-            android.widget.Toast.makeText(requireContext(), "Edit Profile coming soon", android.widget.Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.action_profile_to_editProfile)
         }
         
         binding.btnHelp.setOnClickListener {
-            android.widget.Toast.makeText(requireContext(), "Help & Support coming soon", android.widget.Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.action_profile_to_helpSupport)
         }
 
         binding.btnNotifications.setOnClickListener {

@@ -3,48 +3,55 @@ package com.wayfarer.app.data.repository
 import com.wayfarer.app.data.api.RetrofitClient
 import com.wayfarer.app.data.models.*
 import com.wayfarer.app.utils.Resource
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class WayFarerRepository {
 
     private val api = RetrofitClient.api
+    private val sessionManager = RetrofitClient.sessionManager
+    private val gson = Gson()
+
+    // In-memory storage for bookings in Demo Mode, backed by SharedPreferences
+    private companion object {
+        private var userBookings: MutableList<Booking>? = null
+    }
 
     // ── Auth ──────────────────────────────────────────────────────────────
 
     suspend fun login(email: String, password: String): Resource<AuthResponse> {
-        return try {
-            val response = api.login(LoginRequest(email, password))
-            if (response.isSuccessful && response.body() != null) {
-                val user = User(
-                    id = response.body()?.id ?: "",
-                    name = response.body()?.name ?: "",
-                    email = response.body()?.email ?: "",
-                    role = response.body()?.role ?: "user"
+        // Mocked login for testing without backend
+        return if (email.isNotEmpty() && password.isNotEmpty()) {
+            Resource.Success(
+                AuthResponse(
+                    id = "mock_user_123",
+                    name = "Test User",
+                    email = email,
+                    role = "user",
+                    token = "mock_token_xyz",
+                    message = "Login successful"
                 )
-                Resource.Success(response.body()!!)
-            } else {
-                Resource.Error("Login failed: ${response.message()}")
-            }
-        } catch (e: Exception) {
-            Resource.Error("Network error: ${e.localizedMessage}")
+            )
+        } else {
+            Resource.Error("Invalid email or password")
         }
     }
 
     suspend fun register(name: String, email: String, password: String): Resource<AuthResponse> {
-        return try {
-            val response = api.register(RegisterRequest(name, email, password, password))
-            if (response.isSuccessful && response.body() != null) {
-                val user = User(
-                    id = response.body()?.id ?: "",
-                    name = response.body()?.name ?: "",
-                    email = response.body()?.email ?: "",
-                    role = response.body()?.role ?: "user"
+        // Mocked registration for testing without backend
+        return if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+            Resource.Success(
+                AuthResponse(
+                    id = "mock_user_123",
+                    name = name,
+                    email = email,
+                    role = "user",
+                    token = "mock_token_xyz",
+                    message = "Account created successfully"
                 )
-                Resource.Success(response.body()!!)
-            } else {
-                Resource.Error("Registration failed: ${response.message()}")
-            }
-        } catch (e: Exception) {
-            Resource.Error("Network error: ${e.localizedMessage}")
+            )
+        } else {
+            Resource.Error("All fields are required")
         }
     }
 
@@ -226,40 +233,61 @@ class WayFarerRepository {
 
     // ── Bookings ──────────────────────────────────────────────────────────
 
-    suspend fun getMyBookings(): Resource<List<Booking>> {
-        val toursResult = getTours()
-        val tours = if (toursResult is Resource.Success) toursResult.data else emptyList()
-        val mockBookings = if (tours.size >= 2) {
-            listOf(
-                Booking(id = "b1", tour = tours[0], user = null, price = tours[0].price, createdAt = "2026-05-01T10:00:00Z"),
-                Booking(id = "b2", tour = tours[1], user = null, price = tours[1].price, createdAt = "2026-05-02T14:30:00Z")
-            )
-        } else emptyList()
-        
-        return try {
-            val response = api.getMyBookings()
-            val apiBookings = response.body()?.data?.bookings
-            if (response.isSuccessful && !apiBookings.isNullOrEmpty()) {
-                Resource.Success(apiBookings)
+    private suspend fun loadBookings() {
+        if (userBookings == null) {
+            val json = sessionManager.getDemoBookings()
+            if (json != null) {
+                val type = object : TypeToken<MutableList<Booking>>() {}.type
+                userBookings = try {
+                    gson.fromJson(json, type)
+                } catch (e: Exception) {
+                    mutableListOf()
+                }
             } else {
-                Resource.Success(mockBookings)
+                userBookings = mutableListOf()
+                // Add initial mock bookings if empty
+                val toursResult = try { getTours() } catch (e: Exception) { Resource.Error("") }
+                if (toursResult is Resource.Success) {
+                    val tours = toursResult.data
+                    if (tours.size >= 2) {
+                        userBookings?.add(Booking(id = "b1", tour = tours[0], user = null, price = tours[0].price, createdAt = "2026-05-01T10:00:00Z"))
+                        userBookings?.add(Booking(id = "b2", tour = tours[1], user = null, price = tours[1].price, createdAt = "2026-05-02T14:30:00Z"))
+                        saveBookings()
+                    }
+                }
             }
-        } catch (e: Exception) {
-            Resource.Success(mockBookings)
         }
     }
 
-    suspend fun createBooking(tourId: String, price: Double): Resource<Boolean> {
-        return try {
-            val response = api.createBooking(BookingRequest(tourId, price))
-            if (response.isSuccessful) {
-                Resource.Success(true)
-            } else {
-                Resource.Error("Booking failed: ${response.message()}")
-            }
-        } catch (e: Exception) {
-            Resource.Error("Network error: ${e.localizedMessage}")
+    private fun saveBookings() {
+        userBookings?.let {
+            sessionManager.saveDemoBookings(gson.toJson(it))
         }
+    }
+
+    suspend fun getMyBookings(): Resource<List<Booking>> {
+        loadBookings()
+        return Resource.Success(userBookings.orEmpty().toList())
+    }
+
+    suspend fun createBooking(tourId: String, price: Double): Resource<Boolean> {
+        loadBookings()
+        val toursResult = getTours()
+        val tours = if (toursResult is Resource.Success) toursResult.data else emptyList()
+        val selectedTour = tours.find { it.id == tourId || it.mongoId == tourId }
+        
+        if (selectedTour != null) {
+            userBookings?.add(0, Booking(
+                id = "b_${System.currentTimeMillis()}",
+                tour = selectedTour,
+                user = null,
+                price = price,
+                createdAt = java.util.Date().toString()
+            ))
+            saveBookings()
+            return Resource.Success(true)
+        }
+        return Resource.Error("Tour not found")
     }
 
     // ── Hotels ──────────────────────────────────────────────────────────
@@ -291,25 +319,7 @@ class WayFarerRepository {
         category: String,
         whyVisit: String
     ): Resource<Boolean> {
-        return try {
-            val response = api.addLocation(
-                Location(
-                    description = description,
-                    type = "Point",
-                    coordinates = listOf(lng, lat),
-                    category = category,
-                    whyVisit = whyVisit
-                )
-            )
-            if (response.isSuccessful) {
-                Resource.Success(true)
-            } else {
-                // Mock success for testing purposes if API is not available
-                Resource.Success(true)
-            }
-        } catch (e: Exception) {
-            // Mock success for testing purposes if network fails
-            Resource.Success(true)
-        }
+        // Mocked for demo mode
+        return Resource.Success(true)
     }
 }

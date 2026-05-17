@@ -17,7 +17,10 @@
     
     <!-- Added semantic colors -->
     <color name="white">#FFFFFF</color>
-    
+    <color name="primary">#1A1A2E</color>
+    <color name="primary_dark">#161625</color>
+    <color name="accent">#F0C070</color>
+
     <!-- System -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>

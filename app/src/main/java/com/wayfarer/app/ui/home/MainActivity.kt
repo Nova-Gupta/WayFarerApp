@@ -20,5 +20,22 @@ class MainActivity : AppCompatActivity() {
         val navController = navHost.navController
 
         binding.bottomNavigation.setupWithNavController(navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.chatFragment, R.id.editProfileFragment, R.id.helpSupportFragment -> {
+                    binding.fabChat.hide()
+                    binding.bottomNavigation.visibility = android.view.View.GONE
+                }
+                else -> {
+                    binding.fabChat.show()
+                    binding.bottomNavigation.visibility = android.view.View.VISIBLE
+                }
+            }
+        }
+
+        binding.fabChat.setOnClickListener {
+            navController.navigate(R.id.chatFragment)
+        }
     }
 }

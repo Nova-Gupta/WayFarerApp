@@ -25,6 +25,7 @@ class SessionManager(context: Context) {
         private const val KEY_TOKEN = "jwt_token"
         private const val KEY_USER = "user_json"
         private const val KEY_DARK_MODE = "dark_mode"
+        private const val KEY_BOOKINGS = "demo_bookings"
     }
 
     fun saveToken(token: String) = prefs.edit { putString(KEY_TOKEN, token) }
@@ -37,6 +38,10 @@ class SessionManager(context: Context) {
         val json = prefs.getString(KEY_USER, null) ?: return null
         return try { Gson().fromJson(json, User::class.java) } catch (_: Exception) { null }
     }
+
+    fun saveDemoBookings(bookingsJson: String) = prefs.edit { putString(KEY_BOOKINGS, bookingsJson) }
+
+    fun getDemoBookings(): String? = prefs.getString(KEY_BOOKINGS, null)
 
     fun isLoggedIn(): Boolean = !getToken().isNullOrEmpty()
 

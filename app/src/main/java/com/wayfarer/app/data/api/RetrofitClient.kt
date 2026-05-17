@@ -9,12 +9,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
+    const val BASE_URL = "https://example.com/"
 
-    // Updated to the production Vercel backend:
-    // Updated to test for url for now
-    const val BASE_URL = "https://travel-rw5q.onrender.com/"
-
-    private lateinit var sessionManager: SessionManager
+    lateinit var sessionManager: SessionManager
 
     fun init(sm: SessionManager) {
         sessionManager = sm
@@ -52,5 +49,13 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(WayFarerApi::class.java)
+    }
+
+    val geminiApi: GeminiApi by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://generativelanguage.googleapis.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(GeminiApi::class.java)
     }
 }

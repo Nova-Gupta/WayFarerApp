@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.wayfarer.app.R
-import com.wayfarer.app.data.api.RetrofitClient
 import com.wayfarer.app.data.models.Tour
 import com.wayfarer.app.databinding.ItemTourBinding
 
@@ -35,20 +34,14 @@ class TourAdapter(private val onClick: (Tour) -> Unit) :
             binding.tvTourDifficulty.text = tour.difficulty.replaceFirstChar { it.uppercase() }
             binding.tvTourRating.text = context.getString(R.string.tour_rating_format, tour.ratingsAverage)
 
-            // Check if the image string is a full URL or just a filename
-            val imageUrl = if (tour.imageCover.startsWith("http")) {
-                tour.imageCover
-            } else {
-                "${RetrofitClient.BASE_URL}img/tours/${tour.imageCover}"
-            }
-
             Glide.with(context)
-                .load(imageUrl)
+                .load(tour.imageCover)
                 .placeholder(R.drawable.bg_tour_placeholder)
                 .centerCrop()
                 .into(binding.ivTourCover)
 
             binding.root.setOnClickListener { onClick(tour) }
+            binding.btnExplore.setOnClickListener { onClick(tour) }
         }
     }
 

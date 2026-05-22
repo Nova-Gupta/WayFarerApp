@@ -1,14 +1,13 @@
 package com.wayfarer.app.ui.auth
 
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.wayfarer.app.WayFarerApp
-import com.wayfarer.app.data.models.User
 import com.wayfarer.app.databinding.FragmentLoginBinding
 import com.wayfarer.app.utils.Resource
 
@@ -33,8 +32,13 @@ class LoginFragment : Fragment() {
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString()
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                binding.etEmail.error = "Enter a valid email address"
+                return@setOnClickListener
+            }
+            if (password.length < 6) {
+                binding.etPassword.error = "Password must be at least 6 characters"
                 return@setOnClickListener
             }
             viewModel.login(email, password)
@@ -53,23 +57,7 @@ class LoginFragment : Fragment() {
                 is Resource.Success -> {
                     binding.progressBar.visibility = View.GONE
                     binding.btnLogin.isEnabled = true
-                    val auth = state.data
-                    if (!auth.token.isNullOrEmpty()) {
-                        val session = (requireActivity().application as WayFarerApp).sessionManager
-                        session.saveToken(auth.token)
-                        
-                        val user = User(
-                            id = auth.id ?: "",
-                            name = auth.name ?: "",
-                            email = auth.email ?: "",
-                            role = auth.role ?: "user"
-                        )
-                        session.saveUser(user)
-                        
-                        (requireActivity() as AuthActivity).onAuthSuccess()
-                    } else {
-                        Toast.makeText(requireContext(), auth.message ?: "Login failed", Toast.LENGTH_SHORT).show()
-                    }
+                    (requireActivity() as AuthActivity).onAuthSuccess()
                 }
                 is Resource.Error -> {
                     binding.progressBar.visibility = View.GONE

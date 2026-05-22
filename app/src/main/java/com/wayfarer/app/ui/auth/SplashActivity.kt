@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.wayfarer.app.R
 import com.wayfarer.app.ui.home.MainActivity
 
@@ -17,8 +18,12 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            val destination = if (FirebaseAuth.getInstance().currentUser != null) {
+                MainActivity::class.java
+            } else {
+                AuthActivity::class.java
+            }
+            startActivity(Intent(this, destination))
             finish()
         }, 2000)
     }

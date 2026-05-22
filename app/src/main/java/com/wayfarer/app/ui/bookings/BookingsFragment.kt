@@ -6,10 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.wayfarer.app.WayFarerApp
+import com.google.firebase.auth.FirebaseAuth
 import com.wayfarer.app.databinding.FragmentBookingsBinding
 import com.wayfarer.app.ui.auth.AuthActivity
 import com.wayfarer.app.utils.Resource
@@ -31,13 +32,10 @@ class BookingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val session = (requireActivity().application as WayFarerApp).sessionManager
-        if (!session.isLoggedIn()) {
-            binding.tvEmpty.text = "Please sign in to view your bookings"
+        if (FirebaseAuth.getInstance().currentUser == null) {
             binding.tvEmpty.visibility = View.VISIBLE
             binding.rvBookings.visibility = View.GONE
             binding.progressBar.visibility = View.GONE
-
             binding.tvEmpty.setOnClickListener {
                 startActivity(Intent(requireContext(), AuthActivity::class.java))
             }
@@ -45,7 +43,14 @@ class BookingsFragment : Fragment() {
         }
 
         viewModel = ViewModelProvider(this)[BookingsViewModel::class.java]
-        adapter = BookingAdapter()
+        adapter = BookingAdapter { booking ->
+            AlertDialog.Builder(requireContext())
+                .setTitle("Cancel Booking")
+                .setMessage("Cancel your booking for ${booking.tourName}? This cannot be undone.")
+                .setPositiveButton("Cancel Booking") { _, _ -> viewModel.cancelBooking(booking.id) }
+                .setNegativeButton("Keep It", null)
+                .show()
+        }
 
         binding.rvBookings.layoutManager = LinearLayoutManager(requireContext())
         binding.rvBookings.adapter = adapter
@@ -56,7 +61,6 @@ class BookingsFragment : Fragment() {
                 is Resource.Success -> {
                     binding.progressBar.visibility = View.GONE
                     if (state.data.isEmpty()) {
-                        binding.tvEmpty.text = "No bookings found yet!"
                         binding.tvEmpty.visibility = View.VISIBLE
                         binding.rvBookings.visibility = View.GONE
                     } else {

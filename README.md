@@ -1,88 +1,219 @@
-# WayFarer — Your Ultimate Travel Companion
+# WayFarer — Your AI-Powered Travel Companion
 
-WayFarer is a premium, native Android application designed to streamline travel planning, booking, and exploration. Built with Kotlin and following modern Android development practices (MVVM), it offers an innovative experience integrated with AI assistance.
-
----
-
-## 🌟 Comprehensive Features
-
-### 🏨 Travel & Bookings
-- **Global & Indian Tours:** A curated catalog of 30+ high-end tour packages, including classic international destinations and premium Indian heritage sites (Kerala, Rajasthan, Ladakh, etc.).
-- **Smart Booking Engine:** Instant booking capability directly from the tour detail screen.
-- **Persistent Booking History:** A dedicated "My Bookings" tab that stores your travel history securely on your device, ensuring your data stays even after restarting the app.
-- **Luxury Hotel Directory:** Explore a hand-picked list of 12 world-class hotels with detailed descriptions and pricing.
-
-### 🤖 AI Integration
-- **WayFarer AI Assistant:** A built-in chatbot powered by **Google Gemini 2.5 Flash**.
-- **Context-Aware Conversations:** The AI remembers your previous messages and provides personalized travel advice, booking tips, and destination information.
-- **Smart UI:** A dedicated chat interface with auto-hiding navigation for a focused conversation experience.
-
-### 👤 Profile & Personalization
-- **Account Management:** Secure JWT-based authentication flow (Login/Register).
-- **Dynamic Profile Editing:** Update your personal information instantly from within the app.
-- **Help & Support:** A comprehensive support hub featuring:
-    - Frequently Asked Questions (FAQ).
-    - One-tap Email support.
-    - One-tap Phone support.
-- **Dark Mode:** Full native support for system-wide dark mode for enhanced comfort and aesthetics.
-
-### 📍 Exploration
-- **Location Contributor:** Users can recommend and add new travel spots to the platform with descriptions and coordinates.
+WayFarer is a premium native Android app for discovering, booking, and planning travel experiences. Built entirely in Kotlin with a clean MVVM architecture, it combines a curated catalog of 30+ global tours, real-time hotel matching, Firebase-backed bookings and reviews, and an AI travel assistant powered by the Groq API.
 
 ---
 
-## ⚙️ How It Works (Technical Overview)
+## Screenshots
 
-### 🏗 Architecture (MVVM)
-The app follows the **Model-View-ViewModel** architecture to ensure a clean separation of concerns:
-- **Repository Pattern:** Centralizes data access logic. While the app is currently in "Demo Mode" for local testing, the repository is designed to easily toggle between local mock data and a live Node.js/MongoDB backend.
-- **LiveData:** Ensures the UI updates automatically whenever the data changes.
-
-### 💾 Data Persistence
-Unlike simple mock apps, WayFarer features **JSON-based local persistence**:
-- **Secure Storage:** Sensitive data and session tokens are stored using `EncryptedSharedPreferences` (AES-256 encryption).
-- **Bookings Storage:** When a user books a tour, the repository converts the object into a JSON string and saves it locally, allowing the data to persist across app sessions without a backend.
-
-### 🛡 Security & API Management
-- **Secrets Management:** The Gemini AI API key is never hardcoded. It is stored in `local.properties` and injected into the build via `BuildConfig`, keeping your credentials safe from version control leaks.
-- **Retrofit Interceptors:** Includes a pre-configured Auth Interceptor to automatically attach JWT tokens to future API requests.
-
-### 🖼 Image Loading
-- **Glide Integration:** Uses the high-performance Glide library to load and cache verified, high-resolution imagery from Unsplash, ensuring a fast and visually stunning experience.
+> Run the app and take screenshots to fill this section.
 
 ---
 
-## 🛠 Tech Stack
+## Features
 
-| Component | Technology |
+### Tour Discovery & Browsing
+- **30+ curated tour packages** spanning Adventure, Nature, Culture, City, and Relaxation categories across every major destination — Europe, Asia, the Americas, Africa, and India.
+- **Live search** — filter tours instantly by name or description as you type.
+- **Category chips** — one-tap filtering by Adventure, Nature, Culture, City, or Relaxation.
+- **Rich tour cards** — cover image, price, duration, difficulty badge, and average rating at a glance.
+- **Tour detail page** — full description, price, duration, rating breakdown, a scrollable route timeline showing every city in order, and a booking card.
+
+### Hotel Directory
+- **36 world-class hotels** — from the Burj Al Arab and Marina Bay Sands to boutique riads in Marrakech and eco-lodges in Costa Rica.
+- **Smart hotel matching** — when you open the booking sheet for a tour, only hotels in the tour's destination cities are suggested; the full list is shown as a fallback.
+- Per-hotel details: name, location, star rating, price per night, and a description.
+
+### Booking Engine
+- **End-to-end booking flow** via a bottom sheet — select hotel, check-in/check-out dates, number of guests, trip type (Solo / Couple / Family / Group), and payment method.
+- **Dynamic total calculation** — tour base price + (hotel nightly rate × nights selected).
+- **Firestore persistence** — every booking is saved to `users/{uid}/bookings` so it survives app restarts and device changes.
+- **My Bookings tab** — chronological list of all past and upcoming bookings with tour name, hotel, dates, guest count, and total amount paid.
+- **Cancel booking** — long-press or tap the Cancel button on any booking card; a confirmation dialog prevents accidental cancellations.
+- **Booking notifications** — an instant push notification confirms the booking, and a WorkManager-scheduled reminder fires before the tour starts.
+
+### Traveller Reviews
+- **Per-tour reviews list** — each tour detail page shows all submitted reviews with reviewer initials avatar, name, star rating, relative date, and comment.
+- **Aggregate rating card** — computed average score displayed as a large number alongside a 5-star visual and total review count.
+- **Submit a review** — tap "Write a Review" to open a bottom sheet with a 5-star RatingBar and a comment field. Requires authentication.
+- **Real-time update** — after a successful submission the reviews list reloads immediately.
+- Reviews stored in Firestore at `tours/{tourId}/reviews` and publicly readable.
+
+### AI Travel Assistant (Groq)
+- **Llama 3.3 70B powered chatbot** (Groq API) with a travel-focused system prompt.
+- Full conversation history — messages are kept in memory for context-aware replies throughout the session.
+- Clean chat UI with sent/received bubble styling, timestamps, and a loading indicator while the model responds.
+- The chat tab auto-hides the bottom navigation bar for a distraction-free experience.
+
+### Authentication
+- **Email / password sign-up and login** via Firebase Authentication.
+- Input validation: email format check, minimum 6-character password, non-empty name.
+- Friendly, specific error messages (wrong password, no account found, email already in use).
+- Splash screen checks auth state on launch and routes directly to the home screen if already signed in.
+- Secure session managed by `FirebaseAuth.currentUser` — no tokens stored manually.
+
+### User Profile & Settings
+- Displays the signed-in user's name and email; shows "Guest Traveller" for unauthenticated users.
+- **Edit Profile** — update display name; change is persisted to both Firebase Auth and Firestore.
+- **Dark Mode toggle** — switches between light and dark themes instantly with full Material 3 support; preference is saved across sessions.
+- **Notifications toggle** — UI control for notification preferences.
+- **Help & Support page** — FAQ content, one-tap email support, one-tap phone support.
+- **App Settings shortcut** — opens the system settings page for the app directly.
+- **Sign In / Sign Out** — context-aware button; signs out and returns to the auth screen.
+
+### Location Recommendations
+- Users can submit new travel spots with a description, GPS coordinates, category (Viewpoint, Restaurant, Hidden Gem, Historical, Hiking, Other), and a "Why Visit" blurb.
+- Submissions are saved to Firestore's `locations` collection and attributed to the submitter's UID.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
 |---|---|
-| **Language** | Kotlin |
-| **Architecture** | MVVM |
-| **Networking** | Retrofit 2, OkHttp 4, GSON |
-| **AI Engine** | Google Gemini 2.5 Flash (v1beta) |
-| **Navigation** | Jetpack Navigation Component |
-| **Security** | EncryptedSharedPreferences (Security Crypto 1.1.0) |
-| **Workers** | WorkManager (for background reminders/notifications) |
-| **UI** | Material Design 3, ViewBinding, XML |
+| Language | Kotlin |
+| Min SDK | 24 (Android 7.0 Nougat) |
+| Target SDK | 35 (Android 15) |
+| Architecture | MVVM + Repository pattern |
+| UI | Material Design 3, ViewBinding, XML layouts |
+| Navigation | Jetpack Navigation Component 2.7.6 |
+| Async | Kotlin Coroutines + Flow |
+| Networking | Retrofit 2.9.0, OkHttp 4.12.0, Gson |
+| Image Loading | Glide 4.16.0 |
+| Backend / Auth | Firebase Authentication, Cloud Firestore |
+| AI Chatbot | Groq API — llama-3.3-70b-versatile model |
+| Background Tasks | WorkManager 2.9.0 |
+| Layout Utilities | Google FlexboxLayout 3.0.0 |
+| Build | AGP 8.5.0, Kotlin 2.1.20 |
 
 ---
 
-## 📥 Setup & Build
+## Architecture
+
+```
+app/
+├── data/
+│   ├── api/           # Retrofit interfaces (GroqApi, WayFarerApi)
+│   ├── models/        # Data classes (Tour, Booking, Review, Hotel, User, …)
+│   └── repository/    # WayFarerRepository — single source of truth
+│
+├── ui/
+│   ├── auth/          # SplashActivity, AuthActivity, LoginFragment, RegisterFragment
+│   ├── home/          # HomeFragment, TourAdapter
+│   ├── detail/        # TourDetailFragment, DetailViewModel, ReviewAdapter,
+│   │                  #   WriteReviewSheet, BookingBottomSheet
+│   ├── bookings/      # BookingsFragment, BookingsViewModel, BookingAdapter
+│   ├── hotels/        # HotelFragment, HotelViewModel, HotelAdapter
+│   ├── chat/          # ChatFragment, ChatViewModel
+│   ├── profile/       # ProfileFragment, EditProfileFragment, HelpSupportFragment
+│   └── location/      # AddLocationFragment
+│
+└── utils/
+    ├── Resource.kt        # Sealed class: Success / Error / Loading
+    ├── SessionManager.kt  # Auth state + dark mode preference
+    ├── NotificationHelper.kt
+    └── ReminderWorker.kt
+```
+
+**Data flow:** Fragment observes LiveData on ViewModel → ViewModel calls Repository → Repository calls Firebase / Retrofit → result wrapped in `Resource<T>` sealed class → ViewModel posts to LiveData → Fragment reacts.
+
+---
+
+## Firestore Schema
+
+```
+users/
+  {uid}/
+    bookings/
+      {bookingId}   → tourId, tourName, tourImage, hotelName, checkInDate,
+                       checkOutDate, nights, guests, totalAmount, paid, createdAt, …
+
+tours/
+  {tourId}/
+    reviews/
+      {reviewId}    → userId, userName, rating, comment, createdAt
+
+locations/
+  {locationId}      → description, latitude, longitude, category, whyVisit,
+                       submittedBy, createdAt
+```
+
+### Security Rules
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Each user can only read/write their own data
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Reviews are public to read; any authenticated user can write
+    match /tours/{tourId}/reviews/{reviewId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
+```
+
+---
+
+## Setup & Installation
 
 ### Prerequisites
-- Android Studio Ladybug+
-- Gemini API Key ([Get one here](https://aistudio.google.com/))
+- Android Studio Ladybug (2024.2.1) or newer
+- A Firebase project with Authentication (Email/Password) and Firestore enabled
+- A Groq API key from [x.ai](https://x.ai)
 
-### Configuration
-1. **Clone & Open:** Import the project into Android Studio.
-2. **Add API Key:** Open `local.properties` in your root folder and add:
-   ```properties
-   GEMINI_API_KEY=your_key_here
-   ```
-3. **Build APK:** 
-   - Go to `Build > Build Bundle(s) / APK(s) > Build APK(s)`.
-   - The file will be located at `app/build/outputs/apk/debug/app-debug.apk`.
+### Steps
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/your-username/WayFarerApp.git
+cd WayFarerApp
+```
+
+**2. Connect Firebase**
+- Download `google-services.json` from your Firebase project console.
+- Place it in the `app/` directory.
+- In Firebase Console → Firestore → Rules, publish the security rules shown above.
+
+**3. Add the Groq API key**
+
+Open (or create) `local.properties` in the project root and add:
+```properties
+GROK_API_KEY=your_groq_api_key_here
+```
+This key is injected at build time via `BuildConfig` and never committed to source control.
+
+**4. Build and run**
+- Open the project in Android Studio.
+- Let Gradle sync finish.
+- Run on an emulator or physical device (API 24+).
 
 ---
 
-*Explore the world with WayFarer — Designed for the modern traveler.*
+## Project Highlights
+
+- **Zero hardcoded secrets** — API keys are read from `local.properties` via `BuildConfig` fields.
+- **Cloud-first data** — all user-generated content (bookings, reviews, locations) lives in Firestore; the app works across devices with the same account.
+- **Static tour & hotel catalog** — 30 tours and 36 hotels are bundled directly in the repository companion object for instant, offline-capable loading with no extra network calls.
+- **Smart hotel suggestions** — `getHotelsForTour()` fuzzy-matches hotel city names against a tour's route list so relevant options surface first.
+- **WorkManager reminders** — booking reminders are scheduled as deferred `OneTimeWorkRequest` tasks that survive process death.
+- **Material 3 theming** — full light/dark theme support via `AppCompatDelegate`; switching themes triggers `Activity.recreate()` to re-inflate all views cleanly.
+
+---
+
+## Permissions
+
+| Permission | Reason |
+|---|---|
+| `INTERNET` | API calls to Firestore and Groq |
+| `ACCESS_NETWORK_STATE` | Check connectivity before requests |
+| `POST_NOTIFICATIONS` | Booking confirmations and tour reminders (Android 13+) |
+
+---
+
+*Built with Kotlin · Firebase · Groq AI · Material Design 3*

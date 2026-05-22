@@ -10,6 +10,7 @@ import com.wayfarer.app.utils.Resource
 import kotlinx.coroutines.launch
 
 class HotelViewModel : ViewModel() {
+
     private val repo = WayFarerRepository()
 
     private val _hotels = MutableLiveData<Resource<List<Hotel>>>()

@@ -22,4 +22,11 @@ class BookingsViewModel : ViewModel() {
             _bookingsState.value = repo.getMyBookings()
         }
     }
+
+    fun cancelBooking(bookingId: String) {
+        viewModelScope.launch {
+            repo.cancelBooking(bookingId)
+            loadBookings()
+        }
+    }
 }

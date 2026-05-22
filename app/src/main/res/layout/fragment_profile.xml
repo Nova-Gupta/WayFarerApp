@@ -125,9 +125,9 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@android:drawable/ic_menu_myplaces"
+                        android:src="@drawable/ic_bookings"
                         app:tint="@color/gold_dark"/>
-                        
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -137,13 +137,12 @@
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
                         android:fontFamily="sans-serif-medium"/>
-                        
+
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@android:drawable/ic_media_play"
+                        android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_muted"
-                        android:rotation="90"
                         android:alpha="0.5"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -184,10 +183,11 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_gallery"
+                            android:src="@drawable/ic_moon"
                             app:tint="@color/gold_dark"/>
                             
                         <TextView
+                            android:id="@+id/tv_dark_mode_label"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -224,9 +224,9 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_preferences"
+                            android:src="@drawable/ic_settings_gear"
                             app:tint="@color/gold_dark"/>
-                            
+
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -236,13 +236,12 @@
                             android:textColor="@color/text_primary"
                             android:textSize="16sp"
                             android:fontFamily="sans-serif-medium"/>
-                            
+
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_media_play"
+                            android:src="@drawable/ic_chevron_right"
                             app:tint="@color/text_muted"
-                            android:rotation="90"
                             android:alpha="0.5"/>
                     </LinearLayout>
 
@@ -266,7 +265,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_edit"
+                            android:src="@drawable/ic_edit_pencil"
                             app:tint="@color/gold_dark"/>
                         <TextView
                             android:layout_width="0dp"
@@ -280,9 +279,8 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_media_play"
+                            android:src="@drawable/ic_chevron_right"
                             app:tint="@color/text_muted"
-                            android:rotation="90"
                             android:alpha="0.5"/>
                     </LinearLayout>
 
@@ -306,7 +304,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_info_details"
+                            android:src="@drawable/ic_bell"
                             app:tint="@color/gold_dark"/>
                         <TextView
                             android:layout_width="0dp"
@@ -344,7 +342,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_help"
+                            android:src="@drawable/ic_help_circle"
                             app:tint="@color/gold_dark"/>
                         <TextView
                             android:layout_width="0dp"
@@ -358,9 +356,8 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_media_play"
+                            android:src="@drawable/ic_chevron_right"
                             app:tint="@color/text_muted"
-                            android:rotation="90"
                             android:alpha="0.5"/>
                     </LinearLayout>
                 </LinearLayout>

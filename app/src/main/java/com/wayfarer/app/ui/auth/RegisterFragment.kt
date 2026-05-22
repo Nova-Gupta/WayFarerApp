@@ -1,14 +1,13 @@
 package com.wayfarer.app.ui.auth
 
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.wayfarer.app.WayFarerApp
-import com.wayfarer.app.data.models.User
 import com.wayfarer.app.databinding.FragmentRegisterBinding
 import com.wayfarer.app.utils.Resource
 
@@ -36,12 +35,20 @@ class RegisterFragment : Fragment() {
             val password = binding.etPassword.text.toString()
             val confirm = binding.etConfirmPassword.text.toString()
 
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+            if (name.isEmpty()) {
+                binding.etName.error = "Name is required"
+                return@setOnClickListener
+            }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                binding.etEmail.error = "Enter a valid email address"
+                return@setOnClickListener
+            }
+            if (password.length < 6) {
+                binding.etPassword.error = "Password must be at least 6 characters"
                 return@setOnClickListener
             }
             if (password != confirm) {
-                Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
+                binding.etConfirmPassword.error = "Passwords do not match"
                 return@setOnClickListener
             }
             viewModel.register(name, email, password)
@@ -60,23 +67,7 @@ class RegisterFragment : Fragment() {
                 is Resource.Success -> {
                     binding.progressBar.visibility = View.GONE
                     binding.btnRegister.isEnabled = true
-                    val auth = state.data
-                    if (!auth.token.isNullOrEmpty()) {
-                        val session = (requireActivity().application as WayFarerApp).sessionManager
-                        session.saveToken(auth.token)
-                        
-                        val user = User(
-                            id = auth.id ?: "",
-                            name = auth.name ?: "",
-                            email = auth.email ?: "",
-                            role = auth.role ?: "user"
-                        )
-                        session.saveUser(user)
-                        
-                        (requireActivity() as AuthActivity).onAuthSuccess()
-                    } else {
-                        Toast.makeText(requireContext(), auth.message ?: "Registration failed", Toast.LENGTH_SHORT).show()
-                    }
+                    (requireActivity() as AuthActivity).onAuthSuccess()
                 }
                 is Resource.Error -> {
                     binding.progressBar.visibility = View.GONE

@@ -7,17 +7,17 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.wayfarer.app.R
 import com.wayfarer.app.WayFarerApp
-import com.wayfarer.app.data.api.RetrofitClient
 import com.wayfarer.app.databinding.FragmentTourDetailBinding
 import com.wayfarer.app.ui.auth.AuthActivity
+import com.wayfarer.app.ui.booking.BookingBottomSheet
 import com.wayfarer.app.utils.NotificationHelper
 import com.wayfarer.app.utils.Resource
 
@@ -26,9 +26,12 @@ class TourDetailFragment : Fragment() {
     private var _binding: FragmentTourDetailBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: DetailViewModel
+    private lateinit var reviewAdapter: ReviewAdapter
 
     private var tourId = ""
+    private var tourName = ""
     private var tourPrice = 0.0
+    private var tourDuration = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -44,38 +47,32 @@ class TourDetailFragment : Fragment() {
 
         arguments?.let { args ->
             tourId = args.getString("tourId", "")
-            // Fixed: Use getFloat to match the NavGraph argument type and avoid crash
             tourPrice = args.getFloat("tourPrice", 0f).toDouble()
-            val name = args.getString("tourName", "")
+            tourName = args.getString("tourName", "")
+            tourDuration = args.getInt("tourDuration", 0)
+
             val summary = args.getString("tourSummary", "")
             val cover = args.getString("tourCover", "")
             val rating = args.getFloat("tourRating", 0f)
             val ratingCount = args.getInt("tourRatingCount", 0)
-            val duration = args.getInt("tourDuration", 0)
-            // Fixed: Use getStringArray to match what HomeFragment is passing
             val route = args.getStringArray("tourRoute")?.toList() ?: emptyList()
 
-            binding.tvTourName.text = name
+            binding.tvTourName.text = tourName
             binding.tvTourSummary.text = summary
             binding.tvTourPrice.text = "$${tourPrice.toInt()}"
-            binding.tvTourDuration.text = "$duration Days"
+            binding.tvTourDuration.text = "$tourDuration Days"
             binding.tvTourRating.text = "★ $rating ($ratingCount reviews)"
 
             setupRouteTimeline(route)
 
-            // Fixed: Handle external URLs. If it starts with http, load directly.
-            val imageUrl = if (cover?.startsWith("http") == true) {
-                cover
-            } else {
-                "${RetrofitClient.BASE_URL}img/tours/$cover"
-            }
-
             Glide.with(requireContext())
-                .load(imageUrl)
+                .load(cover)
                 .placeholder(R.drawable.bg_tour_placeholder)
                 .centerCrop()
                 .into(binding.ivTourCover)
         }
+
+        setupReviews()
 
         binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -88,9 +85,7 @@ class TourDetailFragment : Fragment() {
                 startActivity(Intent(requireContext(), AuthActivity::class.java))
                 return@setOnClickListener
             }
-            if (tourId.isNotEmpty()) {
-                viewModel.bookTour(tourId, tourPrice)
-            }
+            openBookingSheet()
         }
 
         viewModel.bookingState.observe(viewLifecycleOwner) { state ->
@@ -101,17 +96,15 @@ class TourDetailFragment : Fragment() {
                 }
                 is Resource.Success -> {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "🎉 Booking confirmed!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Booking confirmed!", Toast.LENGTH_LONG).show()
                     binding.btnBook.text = "Confirmed ✓"
                     binding.btnBook.isEnabled = false
 
-                    // Schedule notification
                     val notificationHelper = NotificationHelper(requireContext())
                     notificationHelper.showBookingNotification(
                         "Booking Confirmed!",
                         "Your tour '${binding.tvTourName.text}' has been booked successfully."
                     )
-                    // Schedule a reminder for 30 seconds later for demonstration
                     notificationHelper.scheduleReminder(
                         "Tour Reminder",
                         "Get ready! Your tour '${binding.tvTourName.text}' is starting soon.",
@@ -125,12 +118,87 @@ class TourDetailFragment : Fragment() {
                 }
             }
         }
+
+        viewModel.submitReviewState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is Resource.Success -> Toast.makeText(requireContext(), "Review submitted!", Toast.LENGTH_SHORT).show()
+                is Resource.Error -> Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                else -> {}
+            }
+        }
+    }
+
+    private fun setupReviews() {
+        reviewAdapter = ReviewAdapter()
+        binding.rvReviews.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvReviews.adapter = reviewAdapter
+        binding.rvReviews.isNestedScrollingEnabled = false
+
+        binding.btnWriteReview.setOnClickListener {
+            val session = (requireActivity().application as WayFarerApp).sessionManager
+            if (!session.isLoggedIn()) {
+                Toast.makeText(requireContext(), "Please sign in to leave a review", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(requireContext(), AuthActivity::class.java))
+                return@setOnClickListener
+            }
+            val sheet = WriteReviewSheet.newInstance(tourName)
+            sheet.onReviewSubmit = { rating, comment ->
+                viewModel.submitReview(tourId, rating, comment)
+            }
+            sheet.show(parentFragmentManager, "write_review")
+        }
+
+        viewModel.reviewsState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is Resource.Loading -> {
+                    binding.pbReviews.visibility = View.VISIBLE
+                    binding.tvNoReviews.visibility = View.GONE
+                }
+                is Resource.Success -> {
+                    binding.pbReviews.visibility = View.GONE
+                    val reviews = state.data
+                    if (reviews.isEmpty()) {
+                        binding.tvNoReviews.visibility = View.VISIBLE
+                        binding.rvReviews.visibility = View.GONE
+                        binding.tvReviewsAverage.text = "—"
+                        binding.tvReviewsStars.text = "☆☆☆☆☆"
+                        binding.tvReviewsTotal.text = "No reviews yet"
+                        binding.tvReviewCount.text = ""
+                    } else {
+                        binding.tvNoReviews.visibility = View.GONE
+                        binding.rvReviews.visibility = View.VISIBLE
+                        reviewAdapter.submitList(reviews)
+
+                        val avg = reviews.map { it.rating }.average()
+                        val rounded = Math.round(avg * 10) / 10.0
+                        val fullStars = avg.toInt()
+                        binding.tvReviewsAverage.text = rounded.toString()
+                        binding.tvReviewsStars.text = "★".repeat(fullStars) + "☆".repeat(5 - fullStars)
+                        binding.tvReviewsTotal.text = "Based on ${reviews.size} review${if (reviews.size > 1) "s" else ""}"
+                        binding.tvReviewCount.text = "${reviews.size} review${if (reviews.size > 1) "s" else ""}"
+                    }
+                }
+                is Resource.Error -> {
+                    binding.pbReviews.visibility = View.GONE
+                }
+            }
+        }
+
+        if (tourId.isNotEmpty()) viewModel.loadReviews(tourId)
+    }
+
+    private fun openBookingSheet() {
+        val sheet = BookingBottomSheet.newInstance(tourId, tourName, tourPrice, tourDuration)
+        sheet.onBookingConfirmed = { request ->
+            viewModel.bookTour(request)
+        }
+        sheet.show(parentFragmentManager, "booking_sheet")
     }
 
     private fun setupRouteTimeline(route: List<String>) {
         binding.layoutRoute.removeAllViews()
         if (route.isEmpty()) {
-            val tv = TextView(requireContext()).apply { 
+            val tv = TextView(requireContext()).apply {
                 text = "No route data available"
                 setTextColor(Color.GRAY)
             }

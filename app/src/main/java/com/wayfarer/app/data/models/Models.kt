@@ -2,60 +2,28 @@ package com.wayfarer.app.data.models
 
 import com.google.gson.annotations.SerializedName
 
-// ── Auth ──────────────────────────────────────────────────────────────────
-
-data class LoginRequest(
-    val email: String,
-    val password: String
-)
-
-data class RegisterRequest(
-    val name: String,
-    val email: String,
-    val password: String,
-    @SerializedName("passwordConfirm") val passwordConfirm: String
-)
-
-data class AuthResponse(
-    @SerializedName("_id") val id: String?,
-    val name: String?,
-    val email: String?,
-    val role: String?,
-    val token: String?,
-    val message: String? // For error cases
-)
+// ── Auth / User ───────────────────────────────────────────────────────────
 
 data class User(
-    @SerializedName("_id") val id: String,
-    val name: String,
-    val email: String,
+    val id: String = "",
+    val name: String = "",
+    val email: String = "",
     val role: String = "user",
     val photo: String? = null
 )
 
 // ── Tours ─────────────────────────────────────────────────────────────────
 
-data class ToursResponse(
-    val status: String,
-    val results: Int,
-    val data: ToursData?
-)
-
-data class ToursData(
-    val tours: List<Tour>?
-)
-
 data class Tour(
-    @SerializedName("_id") val mongoId: String?,
     val id: String,
-    @SerializedName("title") val name: String,
+    val name: String,
     val duration: Int,
-    @SerializedName("groupSize") val maxGroupSizeString: String?,
-    @SerializedName("category") val difficulty: String,
-    @SerializedName("rating") val ratingsAverage: Float = 0f,
+    val maxGroupSizeString: String?,
+    val difficulty: String,
+    val ratingsAverage: Float = 0f,
     val ratingsQuantity: Int = 0,
     val price: Double,
-    @SerializedName("description") val summary: String,
+    val summary: String,
     val image: String,
     val route: List<String>? = null
 ) {
@@ -63,39 +31,54 @@ data class Tour(
     val maxGroupSize: Int get() = maxGroupSizeString?.filter { it.isDigit() }?.toIntOrNull() ?: 20
 }
 
-data class Location(
-    val description: String,
-    val type: String = "Point",
-    val coordinates: List<Double>,
-    val category: String = "Other",
-    val recommendedBy: String? = null,
-    val whyVisit: String? = null
-)
-
 // ── Bookings ──────────────────────────────────────────────────────────────
 
-data class BookingRequest(
-    val tour: String,
-    val price: Double
-)
-
-data class BookingsResponse(
-    val status: String,
-    val results: Int?,
-    val data: BookingsData?
-)
-
-data class BookingsData(
-    val bookings: List<Booking>?
-)
-
 data class Booking(
-    @SerializedName("_id") val id: String,
-    val tour: Tour?,
-    val user: User?,
-    val price: Double,
-    val createdAt: String,
+    val id: String = "",
+    val tourId: String = "",
+    val tourName: String = "",
+    val tourImage: String = "",
+    val tourDifficulty: String = "",
+    val tourDuration: Int = 0,
+    val price: Double = 0.0,
+    val checkInDate: Long = 0L,
+    val checkOutDate: Long = 0L,
+    val hotelId: String = "",
+    val hotelName: String = "",
+    val hotelPricePerNight: Double = 0.0,
+    val nights: Int = 0,
+    val guests: Int = 1,
+    val tripType: String = "Solo",
+    val paymentMethod: String = "Card",
+    val totalAmount: Double = 0.0,
+    val createdAt: Long = 0L,
     val paid: Boolean = true
+)
+
+data class BookingRequest(
+    val tourId: String,
+    val tourPrice: Double,
+    val checkInDate: Long,
+    val checkOutDate: Long,
+    val hotelId: String,
+    val hotelName: String,
+    val hotelPricePerNight: Double,
+    val nights: Int,
+    val guests: Int,
+    val tripType: String,
+    val paymentMethod: String,
+    val totalAmount: Double
+)
+
+// ── Reviews ───────────────────────────────────────────────────────────────
+
+data class Review(
+    val id: String = "",
+    val userId: String = "",
+    val userName: String = "",
+    val rating: Int = 5,
+    val comment: String = "",
+    val createdAt: Long = 0L
 )
 
 // ── Hotels ────────────────────────────────────────────────────────────────
@@ -110,13 +93,6 @@ data class Hotel(
     val description: String
 )
 
-// ── Generic ───────────────────────────────────────────────────────────────
-
-data class ApiError(
-    val status: String,
-    val message: String
-)
-
 // ── Chat ──────────────────────────────────────────────────────────────────
 
 data class ChatMessage(
@@ -125,25 +101,24 @@ data class ChatMessage(
     val timestamp: Long = System.currentTimeMillis()
 )
 
-// ── Gemini API ────────────────────────────────────────────────────────────
+// ── Groq API ─────────────────────────────────────────────────────────────
 
-data class GeminiRequest(
-    val contents: List<GeminiContent>
+data class GroqRequest(
+    val model: String = "llama-3.3-70b-versatile",
+    val messages: List<GroqMessage>
 )
 
-data class GeminiContent(
-    val role: String? = null,
-    val parts: List<GeminiPart>
+data class GroqMessage(
+    val role: String,
+    val content: String
 )
 
-data class GeminiPart(
-    val text: String
+data class GroqResponse(
+    val id: String?,
+    val choices: List<GroqChoice>?
 )
 
-data class GeminiResponse(
-    val candidates: List<GeminiCandidate>?
-)
-
-data class GeminiCandidate(
-    val content: GeminiContent?
+data class GroqChoice(
+    val message: GroqMessage?,
+    @SerializedName("finish_reason") val finishReason: String?
 )

@@ -1,7 +1,7 @@
 package com.wayfarer.app
 
 import android.app.Application
-import com.wayfarer.app.data.api.RetrofitClient
+import androidx.appcompat.app.AppCompatDelegate
 import com.wayfarer.app.utils.SessionManager
 
 class WayFarerApp : Application() {
@@ -11,12 +11,12 @@ class WayFarerApp : Application() {
     override fun onCreate() {
         super.onCreate()
         sessionManager = SessionManager(this)
-        RetrofitClient.init(sessionManager)
+        // Firebase initializes automatically from google-services.json
 
         if (sessionManager.isDarkMode()) {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         } else {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
     }
 }

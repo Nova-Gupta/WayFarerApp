@@ -10,9 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import com.wayfarer.app.R
-import com.wayfarer.app.WayFarerApp
 import com.wayfarer.app.data.models.Tour
+
 import com.wayfarer.app.databinding.FragmentHomeBinding
 import com.wayfarer.app.utils.Resource
 
@@ -23,6 +24,7 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: HomeViewModel
     private lateinit var adapter: TourAdapter
     private var fullTourList: List<Tour> = emptyList()
+    private var currentCategory = "All"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -36,8 +38,8 @@ class HomeFragment : Fragment() {
 
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
 
-        val user = (requireActivity().application as WayFarerApp).sessionManager.getUser()
-        binding.tvGreeting.text = "Hello, ${user?.name?.split(" ")?.firstOrNull() ?: "Traveller"} 👋"
+        val displayName = FirebaseAuth.getInstance().currentUser?.displayName
+        binding.tvGreeting.text = "Hello, ${displayName?.split(" ")?.firstOrNull() ?: "Traveller"} 👋"
 
         adapter = TourAdapter { tour ->
             val bundle = Bundle().apply {
@@ -61,6 +63,7 @@ class HomeFragment : Fragment() {
         binding.swipeRefresh.setOnRefreshListener { viewModel.loadTours() }
 
         setupSearch()
+        setupCategoryChips()
 
         viewModel.toursState.observe(viewLifecycleOwner) { state ->
             when (state) {
@@ -99,17 +102,38 @@ class HomeFragment : Fragment() {
         })
     }
 
+    private fun setupCategoryChips() {
+        listOf(
+            binding.chipCatAdventure, binding.chipCatNature,
+            binding.chipCatCulture, binding.chipCatCity, binding.chipCatRelaxation
+        ).forEach { it.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.dark_navy)) }
+
+        binding.chipGroupCategory.setOnCheckedStateChangeListener { _, checkedIds ->
+            currentCategory = when (checkedIds.firstOrNull()) {
+                R.id.chip_cat_adventure -> "Adventure"
+                R.id.chip_cat_nature -> "Nature"
+                R.id.chip_cat_culture -> "Culture"
+                R.id.chip_cat_city -> "City"
+                R.id.chip_cat_relaxation -> "Relaxation"
+                else -> "All"
+            }
+            filterTours(binding.searchView.query.toString())
+        }
+    }
+
     private fun filterTours(query: String?) {
-        val filteredList = if (query.isNullOrBlank()) {
-            fullTourList
-        } else {
-            fullTourList.filter { 
-                it.name.contains(query, ignoreCase = true) || 
-                it.summary.contains(query, ignoreCase = true) 
+        var list = fullTourList
+        if (currentCategory != "All") {
+            list = list.filter { it.difficulty.equals(currentCategory, ignoreCase = true) }
+        }
+        if (!query.isNullOrBlank()) {
+            list = list.filter {
+                it.name.contains(query, ignoreCase = true) ||
+                it.summary.contains(query, ignoreCase = true)
             }
         }
-        adapter.submitList(filteredList)
-        binding.tvTourCount.text = "${filteredList.size} tours found"
+        adapter.submitList(list)
+        binding.tvTourCount.text = "${list.size} tours found"
     }
 
     override fun onDestroyView() {

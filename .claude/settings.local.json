@@ -7,7 +7,8 @@
       "PowerShell(Set-Location \"C:\\\\Users\\\\rgriy\\\\AndroidStudioProjects\\\\WayFarerApp\"; $output = & \".\\\\gradlew.bat\" \"compileDebugKotlin\" \"--stacktrace\" 2>&1 | Out-String; $lines = $output -split \"`n\"; $errorLines = $lines | Where-Object { $_ -match \"^e:|error:|Unresolved|Overload|None of the following\" }; $errorLines | Select-Object -First 50)",
       "Bash(firebase --version)",
       "Bash(npm --version)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(firebase login:list)"
     ]
   }
 }

@@ -17,7 +17,7 @@ WayFarer is a premium native Android app for discovering, booking, and planning 
 - **Live search** — filter tours instantly by name or description as you type.
 - **Category chips** — one-tap filtering by Adventure, Nature, Culture, City, or Relaxation.
 - **Rich tour cards** — cover image, price, duration, difficulty badge, and average rating at a glance.
-- **Tour detail page** — full description, price, duration, rating breakdown, a scrollable route timeline showing every city in order, and a booking card.
+- **Tour detail page** — full description, price, duration, live rating (computed from actual Firestore reviews), a scrollable route timeline, and a booking card.
 
 ### Hotel Directory
 - **36 world-class hotels** — from the Burj Al Arab and Marina Bay Sands to boutique riads in Marrakech and eco-lodges in Costa Rica.
@@ -25,22 +25,27 @@ WayFarer is a premium native Android app for discovering, booking, and planning 
 - Per-hotel details: name, location, star rating, price per night, and a description.
 
 ### Booking Engine
-- **End-to-end booking flow** via a bottom sheet — select hotel, check-in/check-out dates, number of guests, trip type (Solo / Couple / Family / Group), and payment method.
-- **Dynamic total calculation** — tour base price + (hotel nightly rate × nights selected).
-- **Firestore persistence** — every booking is saved to `users/{uid}/bookings` so it survives app restarts and device changes.
-- **My Bookings tab** — chronological list of all past and upcoming bookings with tour name, hotel, dates, guest count, and total amount paid.
-- **Cancel booking** — long-press or tap the Cancel button on any booking card; a confirmation dialog prevents accidental cancellations.
+- **4-step booking flow** via a bottom sheet:
+  - **Step 1 — Dates:** pick check-in and check-out via a Material date-range calendar; nights calculated automatically.
+  - **Step 2 — Hotel:** choose from smart-matched hotels for the tour's destination.
+  - **Step 3 — Rooms & Guests:** set number of rooms (1–10) and number of guests (1–20) independently, then select trip type (Solo / Couple / Family / Group).
+  - **Step 4 — Payment & Summary:** review full booking breakdown and choose Credit/Debit Card, UPI, or Pay at Start.
+- **Dynamic total calculation** — tour base price + (hotel nightly rate × nights × rooms).
+- **Firestore persistence** — every booking is saved to `users/{uid}/bookings` and synced across devices.
+- **My Bookings tab** — chronological list of all bookings with tour name, hotel, dates, rooms, guests, and total amount.
+- **Cancel booking** — tap the Cancel button on any booking card; a confirmation dialog prevents accidental cancellations.
 - **Booking notifications** — an instant push notification confirms the booking, and a WorkManager-scheduled reminder fires before the tour starts.
 
 ### Traveller Reviews
-- **Per-tour reviews list** — each tour detail page shows all submitted reviews with reviewer initials avatar, name, star rating, relative date, and comment.
-- **Aggregate rating card** — computed average score displayed as a large number alongside a 5-star visual and total review count.
+- **Per-tour reviews list** — each tour detail page shows all submitted reviews with reviewer initials avatar, name, star rating, date, and comment.
+- **Live aggregate rating** — the header rating (stars + count) on the tour detail page updates automatically from real Firestore review data, replacing any default values.
+- **Aggregate rating card** — computed average displayed as a large number alongside a 5-star visual and total review count.
 - **Submit a review** — tap "Write a Review" to open a bottom sheet with a 5-star RatingBar and a comment field. Requires authentication.
-- **Real-time update** — after a successful submission the reviews list reloads immediately.
-- Reviews stored in Firestore at `tours/{tourId}/reviews` and publicly readable.
+- **Real-time update** — after a successful submission the reviews list and header rating reload immediately.
+- Reviews stored in Firestore at `tours/{tourId}/reviews` and publicly readable by anyone.
 
 ### AI Travel Assistant (Groq)
-- **Llama 3.3 70B powered chatbot** (Groq API) with a travel-focused system prompt.
+- **Llama 3.3 70B powered chatbot** via the Groq API with a travel-focused system prompt.
 - Full conversation history — messages are kept in memory for context-aware replies throughout the session.
 - Clean chat UI with sent/received bubble styling, timestamps, and a loading indicator while the model responds.
 - The chat tab auto-hides the bottom navigation bar for a distraction-free experience.
@@ -77,11 +82,11 @@ WayFarer is a premium native Android app for discovering, booking, and planning 
 | Architecture | MVVM + Repository pattern |
 | UI | Material Design 3, ViewBinding, XML layouts |
 | Navigation | Jetpack Navigation Component 2.7.6 |
-| Async | Kotlin Coroutines + Flow |
+| Async | Kotlin Coroutines |
 | Networking | Retrofit 2.9.0, OkHttp 4.12.0, Gson |
 | Image Loading | Glide 4.16.0 |
 | Backend / Auth | Firebase Authentication, Cloud Firestore |
-| AI Chatbot | Groq API — llama-3.3-70b-versatile model |
+| AI Chatbot | Groq API — llama-3.3-70b-versatile |
 | Background Tasks | WorkManager 2.9.0 |
 | Layout Utilities | Google FlexboxLayout 3.0.0 |
 | Build | AGP 8.5.0, Kotlin 2.1.20 |
@@ -94,14 +99,15 @@ WayFarer is a premium native Android app for discovering, booking, and planning 
 app/
 ├── data/
 │   ├── api/           # Retrofit interfaces (GroqApi, WayFarerApi)
-│   ├── models/        # Data classes (Tour, Booking, Review, Hotel, User, …)
+│   ├── models/        # Data classes (Tour, Booking, BookingRequest,
+│   │                  #   Review, Hotel, User, GroqRequest, …)
 │   └── repository/    # WayFarerRepository — single source of truth
 │
 ├── ui/
 │   ├── auth/          # SplashActivity, AuthActivity, LoginFragment, RegisterFragment
 │   ├── home/          # HomeFragment, TourAdapter
 │   ├── detail/        # TourDetailFragment, DetailViewModel, ReviewAdapter,
-│   │                  #   WriteReviewSheet, BookingBottomSheet
+│   │                  #   WriteReviewSheet, BookingBottomSheet, HotelBookingAdapter
 │   ├── bookings/      # BookingsFragment, BookingsViewModel, BookingAdapter
 │   ├── hotels/        # HotelFragment, HotelViewModel, HotelAdapter
 │   ├── chat/          # ChatFragment, ChatViewModel
@@ -126,7 +132,8 @@ users/
   {uid}/
     bookings/
       {bookingId}   → tourId, tourName, tourImage, hotelName, checkInDate,
-                       checkOutDate, nights, guests, totalAmount, paid, createdAt, …
+                       checkOutDate, nights, rooms, guests, tripType,
+                       paymentMethod, totalAmount, paid, createdAt
 
 tours/
   {tourId}/
@@ -165,7 +172,7 @@ service cloud.firestore {
 ### Prerequisites
 - Android Studio Ladybug (2024.2.1) or newer
 - A Firebase project with Authentication (Email/Password) and Firestore enabled
-- A Groq API key from [x.ai](https://x.ai)
+- A Groq API key from [console.groq.com](https://console.groq.com)
 
 ### Steps
 
@@ -199,7 +206,9 @@ This key is injected at build time via `BuildConfig` and never committed to sour
 
 - **Zero hardcoded secrets** — API keys are read from `local.properties` via `BuildConfig` fields.
 - **Cloud-first data** — all user-generated content (bookings, reviews, locations) lives in Firestore; the app works across devices with the same account.
-- **Static tour & hotel catalog** — 30 tours and 36 hotels are bundled directly in the repository companion object for instant, offline-capable loading with no extra network calls.
+- **Live ratings** — the tour detail header rating is computed from real Firestore reviews and updates automatically; hardcoded seed values are never shown once reviews exist.
+- **Rooms-aware pricing** — hotel cost is calculated as `rate × nights × rooms`, giving accurate totals for group and family bookings.
+- **Static tour & hotel catalog** — 30 tours and 36 hotels are bundled in the repository companion object for instant, offline-capable loading with no extra network calls.
 - **Smart hotel suggestions** — `getHotelsForTour()` fuzzy-matches hotel city names against a tour's route list so relevant options surface first.
 - **WorkManager reminders** — booking reminders are scheduled as deferred `OneTimeWorkRequest` tasks that survive process death.
 - **Material 3 theming** — full light/dark theme support via `AppCompatDelegate`; switching themes triggers `Activity.recreate()` to re-inflate all views cleanly.

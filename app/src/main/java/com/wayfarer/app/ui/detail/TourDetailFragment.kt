@@ -164,6 +164,7 @@ class TourDetailFragment : Fragment() {
                         binding.tvReviewsStars.text = "☆☆☆☆☆"
                         binding.tvReviewsTotal.text = "No reviews yet"
                         binding.tvReviewCount.text = ""
+                        binding.tvTourRating.text = "No reviews yet"
                     } else {
                         binding.tvNoReviews.visibility = View.GONE
                         binding.rvReviews.visibility = View.VISIBLE
@@ -176,6 +177,7 @@ class TourDetailFragment : Fragment() {
                         binding.tvReviewsStars.text = "★".repeat(fullStars) + "☆".repeat(5 - fullStars)
                         binding.tvReviewsTotal.text = "Based on ${reviews.size} review${if (reviews.size > 1) "s" else ""}"
                         binding.tvReviewCount.text = "${reviews.size} review${if (reviews.size > 1) "s" else ""}"
+                        binding.tvTourRating.text = "★ $rounded (${reviews.size} review${if (reviews.size > 1) "s" else ""})"
                     }
                 }
                 is Resource.Error -> {

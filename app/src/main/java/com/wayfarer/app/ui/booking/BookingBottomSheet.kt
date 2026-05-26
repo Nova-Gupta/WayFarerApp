@@ -38,6 +38,7 @@ class BookingBottomSheet : BottomSheetDialogFragment() {
     private var checkOutDate = 0L
     private var nights = 0
     private var selectedHotel: Hotel? = null
+    private var rooms = 1
     private var guests = 1
     private var tripType = "Solo"
     private var paymentMethod = "Card"
@@ -89,6 +90,7 @@ class BookingBottomSheet : BottomSheetDialogFragment() {
         }
 
         setupHotels()
+        setupRoomControls()
         setupGuestControls()
         setupTripTypeChips()
         setupPaymentOptions()
@@ -108,6 +110,20 @@ class BookingBottomSheet : BottomSheetDialogFragment() {
         binding.rvHotels.layoutManager =
             androidx.recyclerview.widget.LinearLayoutManager(requireContext())
         hotelAdapter.submitList(WayFarerRepository.getHotelsForTour(tourId))
+    }
+
+    private fun setupRoomControls() {
+        updateRoomDisplay()
+        binding.btnRoomMinus.setOnClickListener {
+            if (rooms > 1) { rooms--; updateRoomDisplay() }
+        }
+        binding.btnRoomPlus.setOnClickListener {
+            if (rooms < 10) { rooms++; updateRoomDisplay() }
+        }
+    }
+
+    private fun updateRoomDisplay() {
+        binding.tvRoomCount.text = rooms.toString()
     }
 
     private fun setupGuestControls() {
@@ -227,23 +243,23 @@ class BookingBottomSheet : BottomSheetDialogFragment() {
 
     private fun populateSummary() {
         val hotel = selectedHotel ?: return
-        val hotelCost = hotel.pricePerNight * nights
+        val hotelCost = hotel.pricePerNight * nights * rooms
         val total = tourPrice + hotelCost
 
         binding.tvSummaryDates.text =
             "📅  ${DATE_FMT.format(Date(checkInDate))} → ${DATE_FMT.format(Date(checkOutDate))}  ($nights nights)"
         binding.tvSummaryHotelName.text = "🏨  ${hotel.name}"
         binding.tvSummaryGuests.text =
-            "👥  $guests guest${if (guests > 1) "s" else ""}  •  $tripType"
+            "👥  $guests guest${if (guests > 1) "s" else ""}  •  $rooms room${if (rooms > 1) "s" else ""}  •  $tripType"
         binding.tvSummaryTour.text = "Tour price:  $${tourPrice.toInt()}"
         binding.tvSummaryHotel.text =
-            "Hotel ($nights × $${hotel.pricePerNight.toInt()}):  $${hotelCost.toInt()}"
+            "Hotel ($rooms room${if (rooms > 1) "s" else ""} × $nights nights × $${hotel.pricePerNight.toInt()}):  $${hotelCost.toInt()}"
         binding.tvSummaryTotal.text = "Grand Total:  $${total.toInt()}"
     }
 
     private fun confirmBooking() {
         val hotel = selectedHotel ?: return
-        val total = tourPrice + hotel.pricePerNight * nights
+        val total = tourPrice + hotel.pricePerNight * nights * rooms
         onBookingConfirmed?.invoke(
             BookingRequest(
                 tourId = tourId,
@@ -254,6 +270,7 @@ class BookingBottomSheet : BottomSheetDialogFragment() {
                 hotelName = hotel.name,
                 hotelPricePerNight = hotel.pricePerNight,
                 nights = nights,
+                rooms = rooms,
                 guests = guests,
                 tripType = tripType,
                 paymentMethod = paymentMethod,
